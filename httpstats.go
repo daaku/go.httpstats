@@ -7,16 +7,16 @@ import (
 	"net/http"
 )
 
-type Handler struct{
-	Handler http.Handler
-	Name string
+type Handler struct {
+	Handler       http.Handler
+	Name          string
 	totalRequests *expvar.Int
 }
 
 func NewHandler(name string, handler http.Handler) *Handler {
 	return &Handler{
-		Handler: handler,
-		Name: name,
+		Handler:       handler,
+		Name:          name,
 		totalRequests: expvar.NewInt(name + "_total_requests"),
 	}
 }
