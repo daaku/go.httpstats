@@ -1,27 +1,29 @@
-// Package provides a HTTP handler that will keep track of some useful
-// request statistics and expose them via expvar.
+// Package httpstats provides a HTTP handler that will keep track of
+// some useful request statistics and log them via go.stats.
 package httpstats
 
 import (
-	"expvar"
+	"github.com/nshah/go.stats"
 	"net/http"
+	"time"
 )
 
 type Handler struct {
-	Handler       http.Handler
-	Name          string
-	totalRequests *expvar.Int
+	Handler http.Handler
+	Name    string
 }
 
 func NewHandler(name string, handler http.Handler) *Handler {
 	return &Handler{
-		Handler:       handler,
-		Name:          name,
-		totalRequests: expvar.NewInt(name + "_total_requests"),
+		Handler: handler,
+		Name:    name,
 	}
 }
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	h.totalRequests.Add(1)
+	stats.Inc("web request")
+	stats.Inc("web request - method=" + r.Method)
+	start := time.Now()
 	h.Handler.ServeHTTP(w, r)
+	stats.Record("web request gen time", time.Since(start).Seconds())
 }
