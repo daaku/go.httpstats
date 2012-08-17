@@ -25,5 +25,5 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	stats.Inc("web request - method=" + r.Method)
 	start := time.Now()
 	h.Handler.ServeHTTP(w, r)
-	stats.Record("web request gen time", time.Since(start).Nanoseconds())
+	stats.Record("web request gen time", float64(time.Since(start).Nanoseconds()))
 }
