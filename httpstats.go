@@ -1,16 +1,21 @@
 // Package httpstats provides a HTTP handler that will keep track of
-// some useful request statistics and log them via go.stats.
+// some useful request statistics.
 package httpstats
 
 import (
-	"github.com/daaku/go.stats"
 	"net/http"
 	"time"
 )
 
+type Stats interface {
+	Inc(name string)
+	Record(name string, value float64)
+}
+
 type Handler struct {
 	Handler http.Handler
 	Name    string
+	Stats   Stats
 }
 
 func NewHandler(name string, handler http.Handler) *Handler {
@@ -21,9 +26,9 @@ func NewHandler(name string, handler http.Handler) *Handler {
 }
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	stats.Inc("web request")
-	stats.Inc("web request - method=" + r.Method)
+	h.Stats.Inc("web request")
+	h.Stats.Inc("web request - method=" + r.Method)
 	start := time.Now()
 	h.Handler.ServeHTTP(w, r)
-	stats.Record("web request gen time", float64(time.Since(start).Nanoseconds()))
+	h.Stats.Record("web request gen time", float64(time.Since(start).Nanoseconds()))
 }
